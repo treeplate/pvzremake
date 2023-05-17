@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pvzremake/tower.dart';
 import 'floor.dart';
 import 'grid_painter.dart';
 import 'logic.dart';
@@ -43,6 +44,15 @@ class _MyHomePageState extends State<MyHomePage> {
     ),
   );
 
+  late List<TowerPainter?> towers =
+      towerArea.towers.map((e) => paintTower(e)).toList();
+
+  @override
+  void setState(VoidCallback callback) {
+    super.setState(callback);
+    towers = towerArea.towers.map((e) => paintTower(e)).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,13 +60,23 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Stack(
-        children: [
-          GridDrawer(towerArea.floors.map((e) => paintFloor(e)).toList(),
-              towerArea.width),
-          GridDrawer(towerArea.towers.map((e) => paintTower(e)).toList(),
-              towerArea.width)
-        ],
+      body: Center(
+        child: Stack(
+          children: [
+            GridDrawer(
+              towerArea.floors.map((e) => paintFloor(e)).toList(),
+              towerArea.width,
+              onTap: (x, y) {
+                setState(() {
+                  towerArea.towers[x + y * towerArea.width] = BasicTower();
+                });
+              },
+            ),
+            IgnorePointer(
+              child: GridDrawer(towers, towerArea.width),
+            )
+          ],
+        ),
       ),
     );
   }

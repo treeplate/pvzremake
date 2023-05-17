@@ -1,27 +1,31 @@
 import 'package:flutter/material.dart';
 
 class GridDrawer extends StatelessWidget {
-  const GridDrawer(this.grid, this.width, {Key? key}) : super(key: key);
+  const GridDrawer(this.grid, this.width, {Key? key, this.onTap})
+      : super(key: key);
   final List<GridCellPainter?> grid;
   final int width;
   int get height => grid.length ~/ width;
+  final void Function(int x, int y)? onTap;
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
-      return Stack(
-        children: [
-          Positioned(
-              left: constraints.maxWidth / 2 + (-cellDim * width / 2),
-              top: constraints.maxHeight / 2 + (-cellDim * height / 2),
-              child: CustomPaint(
-                painter: GridPainter(
-                  width,
-                  height,
-                  grid,
-                ),
-              ))
-        ],
+      return GestureDetector(
+        onTapDown: (TapDownDetails details) {
+          Offset position = details.localPosition;
+          int x = (position.dx / cellDim).floor();
+          int y = (position.dy / cellDim).floor();
+          if (onTap != null) onTap!(x, y);
+        },
+        child: CustomPaint(
+          size: Size(width * cellDim, height * cellDim),
+          painter: GridPainter(
+            width,
+            height,
+            grid,
+          ),
+        ),
       );
     });
   }
@@ -37,7 +41,7 @@ class GridPainter extends CustomPainter {
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => true;
   @override
-  void paint(Canvas canvas, Size size) {
+  void paint(Canvas canvas, Size size) async {
     Size cellSize = const Size(cellDim, cellDim);
     for (int y = 0; y < height; y += 1) {
       for (int x = 0; x < width; x += 1) {
