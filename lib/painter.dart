@@ -23,28 +23,33 @@ TowerPainter? paintTower(Tower? tower) {
       return BasicTowerPainter();
     case null:
       return null;
+    case LaneClearer(style: 0):
+      return LaneClearerPainter();
+    case LaneClearer():
+      throw UnimplementedError('LaneClearer with style ${tower.style}');
   }
 }
 
-FloorPainter paintFloor(Floor floor) {
+FloorPainter? paintFloor(Floor floor) {
   switch (floor) {
-    case BasicFloor():
-      switch (floor.style) {
-        case 0:
-          return BasicFloor0Painter();
-        default:
-          throw UnimplementedError('style ${floor.style}');
-      }
+    case BasicFloor(style: 0):
+      return BasicFloor0Painter();
     case EmptyFloor():
       return EmptyFloorPainter();
+    case NoFloor():
+      return null;
+    case BasicFloor():
+      throw UnimplementedError('BasicFloor with style ${floor.style}');
   }
 }
 
 abstract class TowerPainter extends GridCellPainter {}
 
-class BasicTowerPainter extends TowerPainter {
-  BasicTowerPainter() {
-    loadUiImage('images/basic_tower.png').then((value) {
+abstract class ImagePainter extends GridCellPainter {
+  String get name;
+
+  ImagePainter() {
+    loadUiImage('images/$name.png').then((value) {
       towerImage = value;
       inited = true;
     });
@@ -64,6 +69,16 @@ class BasicTowerPainter extends TowerPainter {
           filterQuality: FilterQuality.none);
     }
   }
+}
+
+class BasicTowerPainter extends ImagePainter implements TowerPainter {
+  @override
+  String get name => "basic_tower";
+}
+
+class LaneClearerPainter extends ImagePainter implements TowerPainter {
+  @override
+  String get name => "lane_clearer";
 }
 
 abstract class FloorPainter extends GridCellPainter {}

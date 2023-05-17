@@ -17,6 +17,8 @@ class TowerArea {
     required this.floors,
     List<Tower>? towers,
   }) : assert((height == null) != (towers == null)) {
-    this.towers = towers ?? List.generate(width * height!, (index) => null);
+    this.towers = towers ??
+        List.generate(width * height!,
+            (index) => index % width == 0 ? LaneClearer(0) : null);
   }
 }

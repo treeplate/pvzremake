@@ -36,11 +36,11 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   TowerArea towerArea = TowerArea(
-    width: 9,
+    width: 10,
     height: 5,
     floors: List.generate(
-      9 * 5,
-      (index) => BasicFloor(0),
+      10 * 5,
+      (index) => index % 10 == 0 ? NoFloor() : BasicFloor(0),
     ),
   );
 
@@ -68,7 +68,9 @@ class _MyHomePageState extends State<MyHomePage> {
               towerArea.width,
               onTap: (x, y) {
                 setState(() {
-                  towerArea.towers[x + y * towerArea.width] = BasicTower();
+                  if (towerArea.towers[x + y * towerArea.width] == null) {
+                    towerArea.towers[x + y * towerArea.width] = BasicTower();
+                  }
                 });
               },
             ),
