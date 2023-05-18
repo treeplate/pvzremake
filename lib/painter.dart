@@ -28,6 +28,10 @@ TowerPainter? paintTower(Tower? tower) {
       return LaneClearerPainter();
     case LaneClearer():
       throw UnimplementedError('LaneClearer with style ${tower.style}');
+    case BasicWall():
+      return BasicWallPainter();
+    case BasicCoinTower():
+      return BasicCoinTowerPainter();
   }
 }
 
@@ -50,6 +54,13 @@ EnemyPainter paintEnemy(Enemy enemy) {
       return BasicEnemy0Painter();
     case BasicEnemy():
       throw UnimplementedError('BasicEnemy with style ${enemy.style}');
+  }
+}
+
+ProjectilePainter paintProjectile(Projectile enemy) {
+  switch (enemy) {
+    case BasicProjectile():
+      return BasicProjectilePainter();
   }
 }
 
@@ -82,13 +93,55 @@ abstract class ImagePainter extends GridCellPainter {
 }
 
 class BasicTowerPainter extends ImagePainter implements TowerPainter {
+  static BasicTowerPainter singleton = BasicTowerPainter._();
+
+  BasicTowerPainter._();
+
+  factory BasicTowerPainter() {
+    return singleton;
+  }
+
   @override
   String get name => "basic_tower";
 }
 
+class BasicWallPainter extends ImagePainter implements TowerPainter {
+  static BasicWallPainter singleton = BasicWallPainter._();
+
+  BasicWallPainter._();
+
+  factory BasicWallPainter() {
+    return singleton;
+  }
+
+  @override
+  String get name => "basic_wall";
+}
+
 class LaneClearerPainter extends ImagePainter implements TowerPainter {
+  static LaneClearerPainter singleton = LaneClearerPainter._();
+
+  LaneClearerPainter._();
+
+  factory LaneClearerPainter() {
+    return singleton;
+  }
+
   @override
   String get name => "lane_clearer";
+}
+
+class BasicCoinTowerPainter extends ImagePainter implements TowerPainter {
+  static BasicCoinTowerPainter singleton = BasicCoinTowerPainter._();
+
+  BasicCoinTowerPainter._();
+
+  factory BasicCoinTowerPainter() {
+    return singleton;
+  }
+
+  @override
+  String get name => "basic_coin_tower";
 }
 
 abstract class FloorPainter extends GridCellPainter {}
@@ -111,6 +164,43 @@ class EmptyFloorPainter extends FloorPainter {
 abstract class EnemyPainter extends GridCellPainter {}
 
 class BasicEnemy0Painter extends ImagePainter implements EnemyPainter {
+  static BasicEnemy0Painter singleton = BasicEnemy0Painter._();
+
+  BasicEnemy0Painter._();
+
+  factory BasicEnemy0Painter() {
+    return singleton;
+  }
+
   @override
   String get name => "basic_enemy_0";
+}
+
+abstract class ProjectilePainter extends GridCellPainter {}
+
+class BasicProjectilePainter extends ImagePainter implements ProjectilePainter {
+  static BasicProjectilePainter singleton = BasicProjectilePainter._();
+
+  BasicProjectilePainter._();
+
+  factory BasicProjectilePainter() {
+    return singleton;
+  }
+
+  @override
+  String get name => "basic_projectile";
+}
+
+class CoinWidget extends StatelessWidget {
+  const CoinWidget({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return const Icon(
+      Icons.sunny,
+      color: Colors.yellow,
+    );
+  }
 }

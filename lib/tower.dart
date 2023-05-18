@@ -1,7 +1,38 @@
-sealed class Tower {}
+sealed class Tower {
+  double get health;
+  set health(double h);
+}
+
+sealed class Projectile {
+  double x;
+  int y;
+  int get damage;
+  Projectile(this.y, this.x);
+}
 
 /// Shoots projectiles straight.
-class BasicTower extends Tower {}
+class BasicTower extends Tower {
+  @override
+  double health = 300;
+}
+
+/// Does nothing.
+class BasicWall extends Tower {
+  @override
+  double health = 4000;
+}
+
+class BasicCoinTower extends Tower {
+  @override
+  double health = 300;
+}
+
+class BasicProjectile extends Projectile {
+  BasicProjectile(super.y, super.x);
+
+  @override
+  int get damage => 20;
+}
 
 /// Clears the lane of [Enemy]s.
 /// Cannot be manually removed.
@@ -9,4 +40,11 @@ class LaneClearer extends Tower {
   final int style; // purely for decoration
 
   LaneClearer(this.style);
+
+  @override
+  double get health => 1;
+  @override
+  set health(double h) {
+    throw StateError('LaneClearers cannot be damaged');
+  }
 }
