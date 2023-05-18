@@ -38,9 +38,7 @@ class TowerArea {
         Tower tower = towers[enemy.x.floor() + enemy.y * width]!;
         switch (tower) {
           case BasicTower():
-            continue;
           case BasicWall():
-            continue;
           case BasicCoinTower():
             tower.health -= 100 / 60;
             if (tower.health <= 0) {
