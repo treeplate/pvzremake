@@ -14,17 +14,26 @@ sealed class Projectile {
 class BasicTower extends Tower {
   @override
   double health = 300;
+  String toString() {
+    return "basic tower";
+  }
 }
 
 /// Does nothing.
 class BasicWall extends Tower {
   @override
   double health = 4000;
+  String toString() {
+    return "basic wall";
+  }
 }
 
 class BasicCoinTower extends Tower {
   @override
   double health = 300;
+  String toString() {
+    return "basic coin tower";
+  }
 }
 
 class BasicProjectile extends Projectile {
