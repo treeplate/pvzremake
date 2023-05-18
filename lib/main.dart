@@ -42,6 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
       10 * 5,
       (index) => index % 10 == 0 ? NoFloor() : BasicFloor(0),
     ),
+    hidingEnemies: [],
   );
 
   late List<TowerPainter?> towers =

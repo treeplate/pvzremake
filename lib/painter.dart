@@ -4,6 +4,7 @@ import 'dart:ui' as ui show Image, decodeImageFromList;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'enemy.dart';
 import 'floor.dart';
 import 'grid_painter.dart';
 import 'tower.dart';
@@ -40,6 +41,15 @@ FloorPainter? paintFloor(Floor floor) {
       return null;
     case BasicFloor():
       throw UnimplementedError('BasicFloor with style ${floor.style}');
+  }
+}
+
+EnemyPainter paintEnemy(Enemy enemy) {
+  switch (enemy) {
+    case BasicEnemy(style: 0):
+      return BasicEnemy0Painter();
+    case BasicEnemy():
+      throw UnimplementedError('BasicEnemy with style ${enemy.style}');
   }
 }
 
@@ -96,4 +106,11 @@ class EmptyFloorPainter extends FloorPainter {
   void paint(Canvas canvas, Size size, Offset offset) {
     canvas.drawRect(offset & size, Paint()..color = Colors.brown);
   }
+}
+
+abstract class EnemyPainter extends GridCellPainter {}
+
+class BasicEnemy0Painter extends ImagePainter implements EnemyPainter {
+  @override
+  String get name => "basic_enemy_0";
 }
