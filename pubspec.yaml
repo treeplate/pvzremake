@@ -56,7 +56,11 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - images/lane_clearer.png
+    - images/basic_coin_tower.png
     - images/basic_tower.png
+    - images/basic_projectile.png
+    - images/basic_wall.png
+    - images/basic_enemy_0.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

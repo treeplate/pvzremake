@@ -58,6 +58,32 @@ class GridPainter extends CustomPainter {
   }
 }
 
+class GridCellWidget extends StatelessWidget {
+  const GridCellWidget(this.cell, {Key? key}) : super(key: key);
+  final GridCellPainter? cell;
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: const Size(cellDim, cellDim),
+      painter: GridCellCustomPainter(
+        cell,
+      ),
+    );
+  }
+}
+
+class GridCellCustomPainter extends CustomPainter {
+  GridCellCustomPainter(this.cell);
+  final GridCellPainter? cell;
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
+  @override
+  void paint(Canvas canvas, Size size) async {
+    Size cellSize = const Size(cellDim, cellDim);
+    cell?.paint(canvas, cellSize, Offset.zero);
+  }
+}
+
 abstract class GridCellPainter {
   void paint(Canvas canvas, Size size, Offset offset);
 }
