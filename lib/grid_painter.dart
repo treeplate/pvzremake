@@ -31,7 +31,7 @@ class GridDrawer extends StatelessWidget {
   }
 }
 
-const double cellDim = 100;
+double cellDim = 30;
 
 class GridPainter extends CustomPainter {
   GridPainter(this.width, this.height, this.grid);
@@ -42,7 +42,7 @@ class GridPainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) => true;
   @override
   void paint(Canvas canvas, Size size) async {
-    Size cellSize = const Size(cellDim, cellDim);
+    Size cellSize = Size(cellDim, cellDim);
     for (int y = 0; y < height; y += 1) {
       for (int x = 0; x < width; x += 1) {
         grid[x + (y * width)]
@@ -64,7 +64,7 @@ class GridCellWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      size: const Size(cellDim, cellDim),
+      size: Size(cellDim, cellDim),
       painter: GridCellCustomPainter(
         cell,
       ),
@@ -79,7 +79,7 @@ class GridCellCustomPainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) => true;
   @override
   void paint(Canvas canvas, Size size) async {
-    Size cellSize = const Size(cellDim, cellDim);
+    Size cellSize = Size(cellDim, cellDim);
     cell?.paint(canvas, cellSize, Offset.zero);
   }
 }

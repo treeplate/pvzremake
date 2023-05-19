@@ -53,7 +53,7 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
+  # Ordered by position on lawn.
   assets:
     - images/lane_clearer.png
     - images/basic_coin_tower.png
@@ -61,6 +61,7 @@ flutter:
     - images/basic_projectile.png
     - images/basic_wall.png
     - images/basic_enemy_0.png
+    - images/basic_enemy_1.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

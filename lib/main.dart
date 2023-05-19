@@ -50,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage>
       (BasicEnemy(2, 10, 0), 60 * 5),
       (BasicEnemy(3, 10, 0), 60 * 5),
       (BasicEnemy(4, 10, 0), 60 * 5),
-      (BasicEnemy(0, 10, 0), 60 * 10),
+      (BasicEnemy(0, 10, 1), 60 * 10),
     ],
   );
 
@@ -176,44 +176,40 @@ class _MyHomePageState extends State<MyHomePage>
           IgnorePointer(
             child: LayoutBuilder(
               builder: (context, constraints) => Stack(
-                children: towerArea.enemies
-                    .map(
-                      (e) => Positioned(
-                        left: e.x * cellDim +
-                            (constraints.maxWidth / 2 -
-                                (cellDim * towerArea.width) / 2),
-                        top: e.y * cellDim +
-                            (constraints.maxHeight / 2 -
-                                (cellDim *
-                                        towerArea.towers.length /
-                                        towerArea.width) /
-                                    2),
-                        child: GridCellWidget(paintEnemy(e)),
-                      ),
-                    )
-                    .toList(),
-              ),
-            ),
-          ),
-          IgnorePointer(
-            child: LayoutBuilder(
-              builder: (context, constraints) => Stack(
-                children: towerArea.projectiles
-                    .map(
-                      (e) => Positioned(
-                        left: e.x * cellDim +
-                            (constraints.maxWidth / 2 -
-                                (cellDim * towerArea.width) / 2),
-                        top: e.y * cellDim +
-                            (constraints.maxHeight / 2 -
-                                (cellDim *
-                                        towerArea.towers.length /
-                                        towerArea.width) /
-                                    2),
-                        child: GridCellWidget(paintProjectile(e)),
-                      ),
-                    )
-                    .toList(),
+                children: [
+                  ...towerArea.enemies
+                      .map(
+                        (e) => Positioned(
+                          left: e.x * cellDim +
+                              (constraints.maxWidth / 2 -
+                                  (cellDim * towerArea.width) / 2),
+                          top: e.y * cellDim +
+                              (constraints.maxHeight / 2 -
+                                  (cellDim *
+                                          towerArea.towers.length /
+                                          towerArea.width) /
+                                      2),
+                          child: GridCellWidget(paintEnemy(e)),
+                        ),
+                      )
+                      .toList(),
+                  ...towerArea.projectiles
+                      .map(
+                        (e) => Positioned(
+                          left: e.x * cellDim +
+                              (constraints.maxWidth / 2 -
+                                  (cellDim * towerArea.width) / 2),
+                          top: e.y * cellDim +
+                              (constraints.maxHeight / 2 -
+                                  (cellDim *
+                                          towerArea.towers.length /
+                                          towerArea.width) /
+                                      2),
+                          child: GridCellWidget(paintProjectile(e)),
+                        ),
+                      )
+                      .toList(),
+                ],
               ),
             ),
           ),
@@ -238,7 +234,40 @@ class _MyHomePageState extends State<MyHomePage>
                         towerArea.coins.remove(coin);
                       },
                     ),
-                  )
+                  ),
+                Positioned(
+                  left: (constraints.maxWidth / 2 -
+                      ((cellDim + 10) * towerArea.width) / 2),
+                  top: (towerArea.towers.length / towerArea.width) *
+                          (cellDim + 10) +
+                      (constraints.maxHeight / 2 -
+                          ((cellDim + 10) *
+                                  towerArea.towers.length /
+                                  towerArea.width) /
+                              2),
+                  child: IconButton(
+                    icon: const Icon(Icons.fullscreen),
+                    onPressed: () {
+                      cellDim += 10;
+                    },
+                  ),
+                ),
+                Positioned(
+                  left: (constraints.maxWidth / 2 -
+                      ((cellDim) * towerArea.width) / 2),
+                  top: (towerArea.towers.length / towerArea.width) * (cellDim) +
+                      (constraints.maxHeight / 2 -
+                          ((cellDim) *
+                                  towerArea.towers.length /
+                                  towerArea.width) /
+                              2),
+                  child: IconButton(
+                    icon: const Icon(Icons.fullscreen_exit),
+                    onPressed: () {
+                      cellDim -= 10;
+                    },
+                  ),
+                ),
               ],
             ),
           ),

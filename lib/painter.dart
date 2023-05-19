@@ -52,6 +52,8 @@ EnemyPainter paintEnemy(Enemy enemy) {
   switch (enemy) {
     case BasicEnemy(style: 0):
       return BasicEnemy0Painter();
+    case BasicEnemy(style: 1):
+      return BasicEnemy1Painter();
     case BasicEnemy():
       throw UnimplementedError('BasicEnemy with style ${enemy.style}');
   }
@@ -174,6 +176,19 @@ class BasicEnemy0Painter extends ImagePainter implements EnemyPainter {
 
   @override
   String get name => "basic_enemy_0";
+}
+
+class BasicEnemy1Painter extends ImagePainter implements EnemyPainter {
+  static BasicEnemy1Painter singleton = BasicEnemy1Painter._();
+
+  BasicEnemy1Painter._();
+
+  factory BasicEnemy1Painter() {
+    return singleton;
+  }
+
+  @override
+  String get name => "basic_enemy_1";
 }
 
 abstract class ProjectilePainter extends GridCellPainter {}
