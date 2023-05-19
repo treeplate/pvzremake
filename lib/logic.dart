@@ -125,7 +125,9 @@ class TowerArea {
     }
     int i = 0;
     for ((double, double) coin in coins) {
-      coins[i] = (coin.$1, coin.$2 + .01);
+      if (coin.$2 < (towers.length / width) - 1) {
+        coins[i] = (coin.$1, coin.$2 + .01);
+      }
       i++;
     }
   }

@@ -160,7 +160,8 @@ class _MyHomePageState extends State<MyHomePage>
               onTap: (x, y) {
                 setState(() {
                   if (towerArea.towers[x + y * towerArea.width] == null &&
-                      newTower != null) {
+                      newTower != null &&
+                      towerArea.floors[x + y * towerArea.width] is BasicFloor) {
                     towerArea.towers[x + y * towerArea.width] = newTower!();
                   }
                 });
