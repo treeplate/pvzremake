@@ -31,7 +31,7 @@ class GridDrawer extends StatelessWidget {
   }
 }
 
-double cellDim = 30;
+double cellDim = 100;
 
 class GridPainter extends CustomPainter {
   GridPainter(this.width, this.height, this.grid);

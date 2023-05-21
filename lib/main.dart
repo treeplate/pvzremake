@@ -82,196 +82,204 @@ class _MyHomePageState extends State<MyHomePage>
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Stack(
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+      body: FittedBox(
+        child: SizedBox(
+          width: 400 + cellDim * towerArea.width,
+          height: cellDim * towerArea.width,
+          child: Stack(
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("You have ${towerArea.money}"),
-                  const CoinWidget(),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text("You have ${towerArea.money}"),
+                      const CoinWidget(),
+                    ],
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      newTower = () {
+                        if (towerArea.money >= 100) {
+                          towerArea.money -= 100;
+                          return BasicTower();
+                        }
+                        return null;
+                      };
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        GridCellWidget(BasicTowerPainter()),
+                        const Text('100'),
+                        const CoinWidget(),
+                      ],
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      newTower = () {
+                        if (towerArea.money >= 50) {
+                          towerArea.money -= 50;
+                          return BasicWall();
+                        }
+                        return null;
+                      };
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        GridCellWidget(BasicWallPainter()),
+                        const Text('50'),
+                        const CoinWidget(),
+                      ],
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      newTower = () {
+                        if (towerArea.money >= 50) {
+                          towerArea.money -= 50;
+                          return BasicCoinTower();
+                        }
+                        return null;
+                      };
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        GridCellWidget(BasicCoinTowerPainter()),
+                        const Text('50'),
+                        const CoinWidget(),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-              TextButton(
-                onPressed: () {
-                  newTower = () {
-                    if (towerArea.money >= 100) {
-                      towerArea.money -= 100;
-                      return BasicTower();
-                    }
-                    return null;
-                  };
-                },
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    GridCellWidget(BasicTowerPainter()),
-                    const Text('100'),
-                    const CoinWidget(),
-                  ],
+              Center(
+                child: GridDrawer(
+                  towerArea.floors.map((e) => paintFloor(e)).toList(),
+                  towerArea.width,
+                  onTap: (x, y) {
+                    setState(() {
+                      if (towerArea.towers[x + y * towerArea.width] == null &&
+                          newTower != null &&
+                          towerArea.floors[x + y * towerArea.width]
+                              is BasicFloor) {
+                        towerArea.towers[x + y * towerArea.width] = newTower!();
+                      }
+                    });
+                  },
                 ),
               ),
-              TextButton(
-                onPressed: () {
-                  newTower = () {
-                    if (towerArea.money >= 50) {
-                      towerArea.money -= 50;
-                      return BasicWall();
-                    }
-                    return null;
-                  };
-                },
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    GridCellWidget(BasicWallPainter()),
-                    const Text('50'),
-                    const CoinWidget(),
-                  ],
+              Center(
+                child: IgnorePointer(
+                  child: GridDrawer(towers, towerArea.width),
                 ),
               ),
-              TextButton(
-                onPressed: () {
-                  newTower = () {
-                    if (towerArea.money >= 50) {
-                      towerArea.money -= 50;
-                      return BasicCoinTower();
-                    }
-                    return null;
-                  };
-                },
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+              IgnorePointer(
+                child: LayoutBuilder(
+                  builder: (context, constraints) => Stack(
+                    children: [
+                      ...towerArea.enemies
+                          .map(
+                            (e) => Positioned(
+                              left: e.x * cellDim +
+                                  (constraints.maxWidth / 2 -
+                                      (cellDim * towerArea.width) / 2),
+                              top: e.y * cellDim +
+                                  (constraints.maxHeight / 2 -
+                                      (cellDim *
+                                              towerArea.towers.length /
+                                              towerArea.width) /
+                                          2),
+                              child: GridCellWidget(paintEnemy(e)),
+                            ),
+                          )
+                          .toList(),
+                      ...towerArea.projectiles
+                          .map(
+                            (e) => Positioned(
+                              left: e.x * cellDim +
+                                  (constraints.maxWidth / 2 -
+                                      (cellDim * towerArea.width) / 2),
+                              top: e.y * cellDim +
+                                  (constraints.maxHeight / 2 -
+                                      (cellDim *
+                                              towerArea.towers.length /
+                                              towerArea.width) /
+                                          2),
+                              child: GridCellWidget(paintProjectile(e)),
+                            ),
+                          )
+                          .toList(),
+                    ],
+                  ),
+                ),
+              ),
+              LayoutBuilder(
+                builder: (context, constraints) => Stack(
                   children: [
-                    GridCellWidget(BasicCoinTowerPainter()),
-                    const Text('50'),
-                    const CoinWidget(),
+                    for ((double, double) coin in towerArea.coins)
+                      Positioned(
+                        left: coin.$1 * cellDim +
+                            (constraints.maxWidth / 2 -
+                                (cellDim * towerArea.width) / 2),
+                        top: coin.$2 * cellDim +
+                            (constraints.maxHeight / 2 -
+                                (cellDim *
+                                        towerArea.towers.length /
+                                        towerArea.width) /
+                                    2),
+                        child: IconButton(
+                          icon: const CoinWidget(),
+                          onPressed: () {
+                            towerArea.money += 50;
+                            towerArea.coins.remove(coin);
+                          },
+                        ),
+                      ),
+                    Positioned(
+                      left: (constraints.maxWidth / 2 -
+                          ((cellDim + 10) * towerArea.width) / 2),
+                      top: (towerArea.towers.length / towerArea.width) *
+                              (cellDim + 10) +
+                          (constraints.maxHeight / 2 -
+                              ((cellDim + 10) *
+                                      towerArea.towers.length /
+                                      towerArea.width) /
+                                  2),
+                      child: IconButton(
+                        icon: const Icon(Icons.fullscreen),
+                        onPressed: () {
+                          cellDim += 10;
+                        },
+                      ),
+                    ),
+                    Positioned(
+                      left: (constraints.maxWidth / 2 -
+                          ((cellDim) * towerArea.width) / 2),
+                      top: (towerArea.towers.length / towerArea.width) *
+                              (cellDim) +
+                          (constraints.maxHeight / 2 -
+                              ((cellDim) *
+                                      towerArea.towers.length /
+                                      towerArea.width) /
+                                  2),
+                      child: IconButton(
+                        icon: const Icon(Icons.fullscreen_exit),
+                        onPressed: () {
+                          cellDim -= 10;
+                        },
+                      ),
+                    ),
                   ],
                 ),
               ),
             ],
           ),
-          Center(
-            child: GridDrawer(
-              towerArea.floors.map((e) => paintFloor(e)).toList(),
-              towerArea.width,
-              onTap: (x, y) {
-                setState(() {
-                  if (towerArea.towers[x + y * towerArea.width] == null &&
-                      newTower != null &&
-                      towerArea.floors[x + y * towerArea.width] is BasicFloor) {
-                    towerArea.towers[x + y * towerArea.width] = newTower!();
-                  }
-                });
-              },
-            ),
-          ),
-          Center(
-            child: IgnorePointer(
-              child: GridDrawer(towers, towerArea.width),
-            ),
-          ),
-          IgnorePointer(
-            child: LayoutBuilder(
-              builder: (context, constraints) => Stack(
-                children: [
-                  ...towerArea.enemies
-                      .map(
-                        (e) => Positioned(
-                          left: e.x * cellDim +
-                              (constraints.maxWidth / 2 -
-                                  (cellDim * towerArea.width) / 2),
-                          top: e.y * cellDim +
-                              (constraints.maxHeight / 2 -
-                                  (cellDim *
-                                          towerArea.towers.length /
-                                          towerArea.width) /
-                                      2),
-                          child: GridCellWidget(paintEnemy(e)),
-                        ),
-                      )
-                      .toList(),
-                  ...towerArea.projectiles
-                      .map(
-                        (e) => Positioned(
-                          left: e.x * cellDim +
-                              (constraints.maxWidth / 2 -
-                                  (cellDim * towerArea.width) / 2),
-                          top: e.y * cellDim +
-                              (constraints.maxHeight / 2 -
-                                  (cellDim *
-                                          towerArea.towers.length /
-                                          towerArea.width) /
-                                      2),
-                          child: GridCellWidget(paintProjectile(e)),
-                        ),
-                      )
-                      .toList(),
-                ],
-              ),
-            ),
-          ),
-          LayoutBuilder(
-            builder: (context, constraints) => Stack(
-              children: [
-                for ((double, double) coin in towerArea.coins)
-                  Positioned(
-                    left: coin.$1 * cellDim +
-                        (constraints.maxWidth / 2 -
-                            (cellDim * towerArea.width) / 2),
-                    top: coin.$2 * cellDim +
-                        (constraints.maxHeight / 2 -
-                            (cellDim *
-                                    towerArea.towers.length /
-                                    towerArea.width) /
-                                2),
-                    child: IconButton(
-                      icon: const CoinWidget(),
-                      onPressed: () {
-                        towerArea.money += 50;
-                        towerArea.coins.remove(coin);
-                      },
-                    ),
-                  ),
-                Positioned(
-                  left: (constraints.maxWidth / 2 -
-                      ((cellDim + 10) * towerArea.width) / 2),
-                  top: (towerArea.towers.length / towerArea.width) *
-                          (cellDim + 10) +
-                      (constraints.maxHeight / 2 -
-                          ((cellDim + 10) *
-                                  towerArea.towers.length /
-                                  towerArea.width) /
-                              2),
-                  child: IconButton(
-                    icon: const Icon(Icons.fullscreen),
-                    onPressed: () {
-                      cellDim += 10;
-                    },
-                  ),
-                ),
-                Positioned(
-                  left: (constraints.maxWidth / 2 -
-                      ((cellDim) * towerArea.width) / 2),
-                  top: (towerArea.towers.length / towerArea.width) * (cellDim) +
-                      (constraints.maxHeight / 2 -
-                          ((cellDim) *
-                                  towerArea.towers.length /
-                                  towerArea.width) /
-                              2),
-                  child: IconButton(
-                    icon: const Icon(Icons.fullscreen_exit),
-                    onPressed: () {
-                      cellDim -= 10;
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
