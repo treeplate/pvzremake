@@ -25,7 +25,7 @@ TowerPainter? paintTower(Tower? tower) {
     case null:
       return null;
     case LaneClearer(style: 0):
-      return LaneClearerPainter();
+      return LaneClearer0Painter();
     case LaneClearer():
       throw UnimplementedError('LaneClearer with style ${tower.style}');
     case BasicWall():
@@ -63,6 +63,10 @@ ProjectilePainter paintProjectile(Projectile enemy) {
   switch (enemy) {
     case BasicProjectile():
       return BasicProjectilePainter();
+    case LaneClearerProjectile(style: 0):
+      return LaneClearer0Painter();
+    case LaneClearerProjectile():
+      throw UnimplementedError('LaneClearer with style ${enemy.style}');
   }
 }
 
@@ -120,12 +124,13 @@ class BasicWallPainter extends ImagePainter implements TowerPainter {
   String get name => "basic_wall";
 }
 
-class LaneClearerPainter extends ImagePainter implements TowerPainter {
-  static LaneClearerPainter singleton = LaneClearerPainter._();
+class LaneClearer0Painter extends ImagePainter
+    implements TowerPainter, ProjectilePainter {
+  static LaneClearer0Painter singleton = LaneClearer0Painter._();
 
-  LaneClearerPainter._();
+  LaneClearer0Painter._();
 
-  factory LaneClearerPainter() {
+  factory LaneClearer0Painter() {
     return singleton;
   }
 

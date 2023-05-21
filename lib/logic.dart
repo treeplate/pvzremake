@@ -45,34 +45,12 @@ class TowerArea {
               towers[enemy.x.floor() + enemy.y * width] = null;
             }
           case LaneClearer():
-            if (laneClearings.any((element) => element.$2 == tower)) {
-              break;
-            }
-            laneClearings.add((enemy.y, tower, oldTower: null));
+            projectiles.add(LaneClearerProjectile(
+                tower.style, enemy.y, enemy.x.floorToDouble()));
+            towers[enemy.x.floor() + enemy.y * width] = null;
         }
       } else {
         enemy.x -= enemy.speed(1000 ~/ 60);
-      }
-    }
-    if (ticks % 60 == 0) {
-      for ((int, LaneClearer, {Tower? oldTower}) laneClearer
-          in laneClearings.toList()) {
-        for (Enemy enemy in enemies.toList()) {
-          if (enemy.y == laneClearer.$1) {
-            enemies.remove(enemy);
-          }
-        }
-        int oldIndex = towers.indexOf(laneClearer.$2);
-        if ((oldIndex + 1) % width == 0) {
-          laneClearings.remove(laneClearer);
-          towers[oldIndex] = laneClearer.oldTower;
-          continue;
-        }
-        towers[oldIndex] = laneClearer.oldTower;
-        laneClearings.add(
-            (laneClearer.$1, laneClearer.$2, oldTower: towers[oldIndex + 1]));
-        laneClearings.remove(laneClearer);
-        towers[oldIndex + 1] = laneClearer.$2;
       }
     }
     int x = 0;
@@ -102,6 +80,8 @@ class TowerArea {
       switch (projectile) {
         case BasicProjectile():
           projectile.x += 3 / 60;
+        case LaneClearerProjectile():
+          projectile.x += 1 / 60;
       }
       if (enemies.any((element) =>
           element.x.floor() == projectile.x.floor() &&
@@ -110,7 +90,9 @@ class TowerArea {
             element.x.floor() == projectile.x.floor() &&
             element.y == projectile.y);
         enemy.health -= projectile.damage;
-        projectiles.remove(projectile);
+        if (projectile.destroying) {
+          projectiles.remove(projectile);
+        }
         if (enemy.health <= 0) {
           enemies.remove(enemy);
         }
