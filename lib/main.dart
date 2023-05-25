@@ -35,24 +35,97 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+class Level {
+  final int height;
+  final int width;
+  final List<(Enemy, int)> hidingEnemies;
+  final List<Floor> floors;
+
+  factory Level.noFirstColumn(int height, int width,
+      List<(Enemy, int)> hidingEnemies, Floor Function(int) genFloor) {
+    return Level(
+      height,
+      width,
+      hidingEnemies,
+      List.generate(
+        width * height,
+        (index) => index % width == 0 ? NoFloor() : genFloor(index),
+      ),
+    );
+  }
+
+  factory Level.floorsByRow(int height, int width,
+          List<(Enemy, int)> hidingEnemies, Floor Function(int) genFloor) =>
+      Level.noFirstColumn(
+        height,
+        width,
+        hidingEnemies,
+        (index) => index % width == 0 ? NoFloor() : genFloor(index ~/ width),
+      );
+
+  TowerArea startLevel() {
+    return TowerArea(
+      width: width,
+      height: height,
+      floors: floors,
+      hidingEnemies: hidingEnemies,
+    );
+  }
+
+  const Level(this.height, this.width, this.hidingEnemies, this.floors);
+}
+
 class _MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
-  TowerArea towerArea = TowerArea(
-    width: 10,
-    height: 5,
-    floors: List.generate(
-      10 * 5,
-      (index) => index % 10 == 0 ? NoFloor() : BasicFloor(0),
+  List<Level> levels = [
+    Level.floorsByRow(
+      5,
+      10,
+      [
+        (BasicEnemy(2, 10, 0), 60 * 3),
+        (BasicEnemy(2, 10, 0), 60 * 10),
+        (BasicEnemy(2, 10, 0), 60 * 13),
+        (BasicEnemy(2, 10, 1), 60 * 24),
+        (BasicEnemy(2, 10, 0), 60 * 27),
+        (BasicEnemy(2, 10, 0), 60 * 31),
+        (BasicEnemy(2, 10, 0), 60 * 35),
+      ],
+      (index) => index != 2 ? EmptyFloor() : BasicFloor(0),
     ),
-    hidingEnemies: [
-      (BasicEnemy(0, 10, 0), 60 * 5),
-      (BasicEnemy(1, 10, 0), 60 * 5),
-      (BasicEnemy(2, 10, 0), 60 * 5),
-      (BasicEnemy(3, 10, 0), 60 * 5),
-      (BasicEnemy(4, 10, 0), 60 * 5),
-      (BasicEnemy(0, 10, 1), 60 * 10),
-    ],
-  );
+  ];
+  int index = 0;
+  int tutorialProgress = 0;
+  List<({String text, List<Object?> objs})> tutorialMessages = [
+    (
+      text: 'Press the {0} to select that for placing.',
+      objs: [BasicTower()],
+    ),
+    (
+      text: 'Now press a {1} to place your {0}.',
+      objs: [BasicTower(), BasicFloor(0)],
+    ),
+    (
+      text: 'Now, once it appears, press the {0} to help fund your {1}.',
+      objs: [const CoinWidget(), BasicTower()],
+    ),
+    (
+      text:
+          'Continue until the {0} indicator registers 100 {0}. This is equivalent to two falling {0}s.',
+      objs: [const CoinWidget()],
+    ),
+    (
+      text: 'Perfect, now place another {0}.',
+      objs: [BasicTower()],
+    ),
+    (
+      text:
+          'The {0}s will help defend against the {1}s and {2}s. You can continue placing them.',
+      objs: [BasicTower(), BasicEnemy(0, 0, 0), BasicEnemy(0, 0, 1)],
+    ),
+  ];
+  late TowerArea towerArea = levels[index].startLevel()
+    ..tickEnemies = false
+    ..money = 100;
 
   late List<TowerPainter?> towers =
       towerArea.towers.map((e) => paintTower(e)).toList();
@@ -69,7 +142,9 @@ class _MyHomePageState extends State<MyHomePage>
 
     createTicker((Duration d) {
       setState(() {
-        towerArea.tick();
+        if (tutorialProgress > 1) {
+          towerArea.tick();
+        }
       });
     }).start();
   }
@@ -78,10 +153,9 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
+      appBar: PreferredSize(
+          preferredSize: const Size(1000, 1000),
+          child: parseInlinedIcons(tutorialMessages[tutorialProgress])),
       body: FittedBox(
         child: SizedBox(
           width: 400 + cellDim * towerArea.width,
@@ -100,9 +174,16 @@ class _MyHomePageState extends State<MyHomePage>
                   ),
                   TextButton(
                     onPressed: () {
+                      if (tutorialProgress == 0) tutorialProgress = 1;
                       newTower = () {
                         if (towerArea.money >= 100) {
                           towerArea.money -= 100;
+                          if (tutorialProgress < 5) {
+                            tutorialProgress++;
+                            if (tutorialProgress == 5) {
+                              towerArea.tickEnemies = true;
+                            }
+                          }
                           return BasicTower();
                         }
                         return null;
@@ -235,6 +316,12 @@ class _MyHomePageState extends State<MyHomePage>
                         child: IconButton(
                           icon: const CoinWidget(),
                           onPressed: () {
+                            if (tutorialProgress == 3) {
+                              tutorialProgress = 4;
+                            }
+                            if (tutorialProgress == 2) {
+                              tutorialProgress = 3;
+                            }
                             towerArea.money += 50;
                             towerArea.coins.remove(coin);
                           },

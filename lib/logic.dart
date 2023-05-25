@@ -17,18 +17,23 @@ class TowerArea {
   final List<(double, double)> coins = [];
 
   int ticks = 0;
+  int enemyTicks = 0;
   int money = 50;
   Random r = Random();
+  bool tickEnemies = true;
 
   void tick() {
     for ((Enemy, int) enemy in hidingEnemies) {
-      if (enemy.$2 == ticks) {
+      if (enemy.$2 == enemyTicks) {
         print('NEW ENEMY ${enemy.$1}');
         enemies.add(enemy.$1);
       }
-      if (enemy.$2 < ticks) {
+      if (enemy.$2 < enemyTicks) {
         print('PAST ENEMY');
       }
+    }
+    if (tickEnemies) {
+      enemyTicks++;
     }
     for (Enemy enemy in enemies.toList()) {
       hidingEnemies.removeWhere((e) => e.$1 == enemy);

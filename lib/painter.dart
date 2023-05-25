@@ -224,3 +224,70 @@ class CoinWidget extends StatelessWidget {
     );
   }
 }
+
+Widget renderThing(
+  Object? thing,
+) {
+  if (thing == null) {
+    return SizedBox(
+      width: cellDim,
+      height: cellDim,
+    );
+  }
+  if (thing is Enemy) {
+    return GridCellWidget(paintEnemy(thing));
+  }
+  if (thing is Tower) {
+    return GridCellWidget(paintTower(thing));
+  }
+  if (thing is Floor) {
+    return GridCellWidget(paintFloor(thing));
+  }
+  if (thing is Widget) {
+    return thing;
+  }
+  return Text(
+    'unknown thing $thing',
+    style: const TextStyle(color: Colors.red),
+  );
+}
+
+Row parseInlinedIcons(({String text, List<Object?> objs}) args) {
+  List<Widget> result = [];
+  StringBuffer buffer = StringBuffer();
+  bool parsingKey = false;
+  for (int rune in args.text.runes) {
+    if (parsingKey) {
+      if (rune == 0x7D) {
+        result.add(renderThing(args.objs[int.parse(buffer.toString())]));
+        buffer = StringBuffer();
+        parsingKey = false;
+      } else {
+        buffer.writeCharCode(rune);
+      }
+    } else {
+      if (rune == 0x7B) {
+        result.add(Text(
+          buffer.toString(),
+          style: TextStyle(fontSize: 30, color: Colors.black),
+        ));
+        buffer = StringBuffer();
+        parsingKey = true;
+      } else {
+        buffer.writeCharCode(rune);
+      }
+    }
+  }
+  if (parsingKey) {
+    result.add(renderThing(args.objs[int.parse(buffer.toString())]));
+  } else {
+    result.add(Text(
+      buffer.toString(),
+      style: TextStyle(fontSize: 30, color: Colors.black),
+    ));
+  }
+  return Row(
+    mainAxisSize: MainAxisSize.min,
+    children: result,
+  );
+}
