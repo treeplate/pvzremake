@@ -269,7 +269,7 @@ Row parseInlinedIcons(({String text, List<Object?> objs}) args) {
       if (rune == 0x7B) {
         result.add(Text(
           buffer.toString(),
-          style: TextStyle(fontSize: 30, color: Colors.black),
+          style: const TextStyle(fontSize: 30, color: Colors.black),
         ));
         buffer = StringBuffer();
         parsingKey = true;
@@ -283,7 +283,7 @@ Row parseInlinedIcons(({String text, List<Object?> objs}) args) {
   } else {
     result.add(Text(
       buffer.toString(),
-      style: TextStyle(fontSize: 30, color: Colors.black),
+      style: const TextStyle(fontSize: 30, color: Colors.black),
     ));
   }
   return Row(
