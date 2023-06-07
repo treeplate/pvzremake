@@ -187,11 +187,16 @@ class _MyHomePageState extends State<MyHomePage>
 
   static const Set<int> pausedTutorials = {0, 1};
 
+  Duration previousDuration = Duration.zero;
+  double frameRate = double.nan;
+
   @override
   void initState() {
     super.initState();
 
     createTicker((Duration d) {
+      frameRate = 1 / ((d - previousDuration).inMicroseconds / 1000000);
+      previousDuration = d;
       setState(() {
         if (!(pausedTutorials.contains(tutorialProgress))) {
           towerArea.tick();
@@ -215,6 +220,13 @@ class _MyHomePageState extends State<MyHomePage>
       appBar: PreferredSize(
           preferredSize: const Size(1000, 1000),
           child: parseInlinedIcons(tutorialMessages[tutorialProgress])),
+      bottomNavigationBar: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text("${frameRate.isFinite ? frameRate.round() : frameRate} fps")
+          ]),
       body: FittedBox(
         child: SizedBox(
           width: 400 + cellDim * towerArea.width,
