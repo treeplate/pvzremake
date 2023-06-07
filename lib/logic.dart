@@ -126,7 +126,7 @@ class TowerArea {
       {required this.width,
       int? height,
       required this.floors,
-      List<Tower>? towers,
+      List<Tower?>? towers,
       required this.hidingEnemies})
       : assert((height == null) != (towers == null)) {
     this.towers = towers ??

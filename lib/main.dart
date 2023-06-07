@@ -36,7 +36,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class Level {
-  final int height;
+  final int? height;
+  final List<Tower?>? towers;
   final int width;
   final List<(Enemy, int)> hidingEnemies;
   final List<Floor> floors;
@@ -60,7 +61,7 @@ class Level {
         height,
         width,
         hidingEnemies,
-        (index) => index % width == 0 ? NoFloor() : genFloor(index ~/ width),
+        (index) => genFloor(index ~/ width),
       );
 
   TowerArea startLevel() {
@@ -69,10 +70,12 @@ class Level {
       height: height,
       floors: floors,
       hidingEnemies: hidingEnemies,
+      towers: towers,
     );
   }
 
-  const Level(this.height, this.width, this.hidingEnemies, this.floors);
+  const Level(this.height, this.width, this.hidingEnemies, this.floors,
+      {this.towers});
 }
 
 class _MyHomePageState extends State<MyHomePage>
@@ -92,6 +95,36 @@ class _MyHomePageState extends State<MyHomePage>
       ],
       (index) => index != 2 ? EmptyFloor() : BasicFloor(0),
     ),
+    //00:10
+    //
+    Level(
+        null,
+        10,
+        [
+          (BasicEnemy(2, 10, 0), 60 * 5),
+          (BasicEnemy(2, 10, 0), 60 * 12),
+          (BasicEnemy(1, 10, 0), 60 * 13),
+          (BasicEnemy(3, 10, 0), 60 * 30),
+          (BasicEnemy(1, 10, 0), 60 * 60),
+          (BasicEnemy(2, 10, 0), 60 * 60),
+          (BasicEnemy(3, 10, 0), 60 * 60),
+          (BasicEnemy(1, 10, 1), 60 * 60),
+        ],
+        List.generate(
+          10 * 5,
+          (index) => index % 10 == 0
+              ? NoFloor()
+              : (index ~/ 10 >= 1 && index ~/ 10 <= 3)
+                  ? BasicFloor(0)
+                  : EmptyFloor(),
+        ),
+        towers: List.generate(
+            10 * 5,
+            (index) => index % 10 == 0
+                ? LaneClearer(0)
+                : index == 24
+                    ? BasicTower()
+                    : null)),
   ];
   int index = 0;
   int tutorialProgress = 0;
@@ -121,6 +154,22 @@ class _MyHomePageState extends State<MyHomePage>
       text:
           'The {0}s will help defend against the {1}s and {2}s. You can continue placing them.',
       objs: [BasicTower(), BasicEnemy(0, 0, 0), BasicEnemy(0, 0, 1)],
+    ), // 5
+    (
+      text: 'You unlocked {0}! {0}s make {1}. Place a {0}.',
+      objs: [BasicCoinTower(), const CoinWidget()],
+    ),
+    (
+      text: 'Place another {0}.',
+      objs: [BasicCoinTower()],
+    ),
+    (
+      text: 'Place at least one {0} per row.',
+      objs: [BasicCoinTower()],
+    ),
+    (
+      text: '',
+      objs: [],
     ),
   ];
   late TowerArea towerArea = levels[index].startLevel()
@@ -136,14 +185,24 @@ class _MyHomePageState extends State<MyHomePage>
     towers = towerArea.towers.map((e) => paintTower(e)).toList();
   }
 
+  static const Set<int> pausedTutorials = {0, 1};
+
   @override
   void initState() {
     super.initState();
 
     createTicker((Duration d) {
       setState(() {
-        if (tutorialProgress > 1) {
+        if (!(pausedTutorials.contains(tutorialProgress))) {
           towerArea.tick();
+          if (towerArea.hidingEnemies.isEmpty && towerArea.enemies.isEmpty) {
+            index++;
+            towerArea = levels[index].startLevel()..money = 50;
+            tutorialProgress++;
+            if (tutorialProgress == 6) {
+              towerArea.tickEnemies = false;
+            }
+          }
         }
       });
     }).start();
@@ -217,25 +276,32 @@ class _MyHomePageState extends State<MyHomePage>
                       ],
                     ),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      newTower = () {
-                        if (towerArea.money >= 50) {
-                          towerArea.money -= 50;
-                          return BasicCoinTower();
-                        }
-                        return null;
-                      };
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        GridCellWidget(BasicCoinTowerPainter()),
-                        const Text('50'),
-                        const CoinWidget(),
-                      ],
+                  if (tutorialProgress > 5)
+                    TextButton(
+                      onPressed: () {
+                        newTower = () {
+                          if (towerArea.money >= 50) {
+                            towerArea.money -= 50;
+                            if (tutorialProgress < 9) {
+                              tutorialProgress++;
+                              if (tutorialProgress == 9) {
+                                towerArea.tickEnemies = true;
+                              }
+                            }
+                            return BasicCoinTower();
+                          }
+                          return null;
+                        };
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          GridCellWidget(BasicCoinTowerPainter()),
+                          const Text('50'),
+                          const CoinWidget(),
+                        ],
+                      ),
                     ),
-                  ),
                 ],
               ),
               Center(
