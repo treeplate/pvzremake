@@ -100,6 +100,27 @@ class TowerArea {
         }
         if (enemy.health <= 0) {
           enemies.remove(enemy);
+          if (enemy is BasicArmoredEnemy) {
+            enemies.add(
+              BasicEnemy(
+                enemy.y,
+                width,
+                enemy.style,
+              )
+                ..x = enemy.x
+                ..health += enemy.health,
+            );
+          } else if (enemy is StrongArmoredEnemy) {
+            enemies.add(
+              BasicArmoredEnemy(
+                enemy.y,
+                width,
+                enemy.style,
+              )
+                ..x = enemy.x
+                ..health += enemy.health,
+            );
+          }
         }
       }
       if (projectile.x > width) {

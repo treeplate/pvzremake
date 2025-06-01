@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:pvzremake/tower.dart';
 import 'enemy.dart';
 import 'floor.dart';
@@ -17,8 +18,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      theme: ThemeData.dark(
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Taawer Defens'),
@@ -95,36 +95,55 @@ class _MyHomePageState extends State<MyHomePage>
       ],
       (index) => index != 2 ? EmptyFloor() : BasicFloor(0),
     ),
-    //00:10
-    //
     Level(
-        null,
-        10,
-        [
-          (BasicEnemy(2, 10, 0), 60 * 5),
-          (BasicEnemy(2, 10, 0), 60 * 12),
-          (BasicEnemy(1, 10, 0), 60 * 13),
-          (BasicEnemy(3, 10, 0), 60 * 30),
-          (BasicEnemy(1, 10, 0), 60 * 60),
-          (BasicEnemy(2, 10, 0), 60 * 60),
-          (BasicEnemy(3, 10, 0), 60 * 60),
-          (BasicEnemy(1, 10, 1), 60 * 60),
-        ],
-        List.generate(
-          10 * 5,
-          (index) => index % 10 == 0
-              ? NoFloor()
-              : (index ~/ 10 >= 1 && index ~/ 10 <= 3)
-                  ? BasicFloor(0)
-                  : EmptyFloor(),
-        ),
-        towers: List.generate(
-            10 * 5,
-            (index) => index % 10 == 0
-                ? LaneClearer(0)
-                : index == 24
-                    ? BasicTower()
-                    : null)),
+      null,
+      10,
+      [
+        (BasicEnemy(2, 10, 0), 60 * 5),
+        (BasicEnemy(2, 10, 0), 60 * 12),
+        (BasicEnemy(1, 10, 0), 60 * 13),
+        (BasicEnemy(3, 10, 0), 60 * 30),
+        (BasicEnemy(1, 10, 0), 60 * 60),
+        (BasicEnemy(2, 10, 0), 60 * 60),
+        (BasicEnemy(3, 10, 0), 60 * 60),
+        (BasicEnemy(1, 10, 1), 60 * 60),
+      ],
+      List.generate(
+        10 * 5,
+        (index) => index % 10 == 0
+            ? NoFloor()
+            : (index ~/ 10 >= 1 && index ~/ 10 <= 3)
+                ? BasicFloor(0)
+                : EmptyFloor(),
+      ),
+      towers: List.generate(
+        10 * 5,
+        (index) => index % 10 == 0
+            ? LaneClearer(0)
+            : index == 24
+                ? BasicTower()
+                : null,
+      ),
+    ),
+    Level(
+      null,
+      10,
+      [
+        (BasicEnemy(2, 10, 0), 60 * 5), // placeholder
+      ],
+      List.generate(
+        10 * 5,
+        (index) => index % 10 == 0 ? NoFloor() : BasicFloor(0),
+      ),
+      towers: List.generate(
+        10 * 5,
+        (index) => index % 10 == 0
+            ? LaneClearer(0)
+            : index == 24 // placeholder index
+                ? BasicWall()
+                : null,
+      ),
+    )
   ];
   int index = 0;
   int tutorialProgress = 0;
@@ -171,6 +190,10 @@ class _MyHomePageState extends State<MyHomePage>
       text: '',
       objs: [],
     ),
+    (
+      text: '{0}s are very strong and will last for longer than {1}s and {2}s.',
+      objs: [BasicWall(), BasicCoinTower(), BasicTower()],
+    ),
   ];
   late TowerArea towerArea = levels[index].startLevel()
     ..tickEnemies = false
@@ -189,12 +212,13 @@ class _MyHomePageState extends State<MyHomePage>
 
   Duration previousDuration = Duration.zero;
   double frameRate = double.nan;
+  late final Ticker ticker;
 
   @override
   void initState() {
     super.initState();
 
-    createTicker((Duration d) {
+    ticker = createTicker((Duration d) {
       frameRate = 1 / ((d - previousDuration).inMicroseconds / 1000000);
       previousDuration = d;
       setState(() {
@@ -202,6 +226,24 @@ class _MyHomePageState extends State<MyHomePage>
           towerArea.tick();
           if (towerArea.hidingEnemies.isEmpty && towerArea.enemies.isEmpty) {
             index++;
+            if (index >= levels.length) {
+              showDialog(context: context, builder: (context) {
+                return AlertDialog(
+                  title: const Text('Tutorial Complete'),
+                  content: const Text('You have completed the tutorial!'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                );
+              });
+              ticker.stop();
+              return;
+            }
             towerArea = levels[index].startLevel()..money = 50;
             tutorialProgress++;
             if (tutorialProgress == 6) {
@@ -210,7 +252,12 @@ class _MyHomePageState extends State<MyHomePage>
           }
         }
       });
-    }).start();
+    })..start();
+  }
+
+  void dispose() {
+    ticker.dispose();
+    super.dispose();
   }
 
   Tower? Function()? newTower;
@@ -225,7 +272,10 @@ class _MyHomePageState extends State<MyHomePage>
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("${frameRate.isFinite ? frameRate.round() : frameRate} fps")
+            Text(
+              "${frameRate.isFinite ? frameRate.round() : frameRate} fps",
+              style: const TextStyle(color: Colors.white),
+            )
           ]),
       body: FittedBox(
         child: SizedBox(
@@ -239,7 +289,10 @@ class _MyHomePageState extends State<MyHomePage>
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text("You have ${towerArea.money}"),
+                      Text(
+                        "You have ${towerArea.money}",
+                        style: const TextStyle(color: Colors.white),
+                      ),
                       const CoinWidget(),
                     ],
                   ),
@@ -264,7 +317,10 @@ class _MyHomePageState extends State<MyHomePage>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         GridCellWidget(BasicTowerPainter()),
-                        const Text('100'),
+                        const Text(
+                          '100',
+                          style: TextStyle(color: Colors.white),
+                        ),
                         const CoinWidget(),
                       ],
                     ),
@@ -283,7 +339,10 @@ class _MyHomePageState extends State<MyHomePage>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         GridCellWidget(BasicWallPainter()),
-                        const Text('50'),
+                        const Text(
+                          '50',
+                          style: TextStyle(color: Colors.white),
+                        ),
                         const CoinWidget(),
                       ],
                     ),
@@ -309,7 +368,10 @@ class _MyHomePageState extends State<MyHomePage>
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           GridCellWidget(BasicCoinTowerPainter()),
-                          const Text('50'),
+                          const Text(
+                            '50',
+                            style: TextStyle(color: Colors.white),
+                          ),
                           const CoinWidget(),
                         ],
                       ),

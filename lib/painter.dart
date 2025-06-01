@@ -56,6 +56,14 @@ EnemyPainter paintEnemy(Enemy enemy) {
       return BasicEnemy1Painter();
     case BasicEnemy():
       throw UnimplementedError('BasicEnemy with style ${enemy.style}');
+    case BasicArmoredEnemy(style: 0):
+      return BasicArmoredEnemy0Painter();
+    case StrongArmoredEnemy(style: 0):
+      return StrongArmoredEnemy0Painter();
+    case BasicArmoredEnemy():
+      throw UnimplementedError('BasicArmoredEnemy with style ${enemy.style}');
+    case StrongArmoredEnemy():
+      throw UnimplementedError('StrongArmoredEnemy with style ${enemy.style}');
   }
 }
 
@@ -196,6 +204,32 @@ class BasicEnemy1Painter extends ImagePainter implements EnemyPainter {
   String get name => "basic_enemy_1";
 }
 
+class BasicArmoredEnemy0Painter extends ImagePainter implements EnemyPainter {
+  static BasicArmoredEnemy0Painter singleton = BasicArmoredEnemy0Painter._();
+
+  BasicArmoredEnemy0Painter._();
+
+  factory BasicArmoredEnemy0Painter() {
+    return singleton;
+  }
+
+  @override
+  String get name => "basic_armored_0";
+}
+
+class StrongArmoredEnemy0Painter extends ImagePainter implements EnemyPainter {
+  static StrongArmoredEnemy0Painter singleton = StrongArmoredEnemy0Painter._();
+
+  StrongArmoredEnemy0Painter._();
+
+  factory StrongArmoredEnemy0Painter() {
+    return singleton;
+  }
+
+  @override
+  String get name => "strong_armored_0";
+}
+
 abstract class ProjectilePainter extends GridCellPainter {}
 
 class BasicProjectilePainter extends ImagePainter implements ProjectilePainter {
@@ -269,7 +303,7 @@ Row parseInlinedIcons(({String text, List<Object?> objs}) args) {
       if (rune == 0x7B) {
         result.add(Text(
           buffer.toString(),
-          style: const TextStyle(fontSize: 30, color: Colors.black),
+          style: const TextStyle(fontSize: 30, color: Colors.white),
         ));
         buffer = StringBuffer();
         parsingKey = true;
@@ -283,7 +317,7 @@ Row parseInlinedIcons(({String text, List<Object?> objs}) args) {
   } else {
     result.add(Text(
       buffer.toString(),
-      style: const TextStyle(fontSize: 30, color: Colors.black),
+      style: const TextStyle(fontSize: 30, color: Colors.white),
     ));
   }
   return Row(
